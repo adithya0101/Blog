@@ -10,7 +10,7 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: Arial, sans-serif;
+            font-family: Roboto, Arial, sans-serif;
             transition: background 0.3s ease, color 0.3s ease;
         }
 
@@ -80,6 +80,7 @@
 
         .blog-post {
             background: var(--bg-color);
+            font-family:Roboto;
             padding: 15px;
             margin-bottom: 15px;
             border-radius: 5px;
@@ -106,30 +107,34 @@
     <div class="sidebar">
         <h2>My Blog</h2>
         <ul class="menu">
-            <li><a href="#">Home</a></li>
-            <li><a href="#">Compose</a></li>
-            <li><a href="#">My Blogs</a></li>
-            <li><a href="#">Profile</a></li>
+            <li><a href="/">Home</a></li>
+            <li><a href="/createblog">Compose</a></li>
+            <li><a href="/myblog">My Blogs</a></li>
+            <li><a href="/profile">Profile</a></li>
+            <li><a href="/login">Log Out</a></li>
         </ul>
     </div>
 
     <!-- Main Content -->
-    <div class="main-content">
-        <button class="theme-toggle" onclick="toggleTheme()">🌙</button>
-
-        <div class="blog-post">
-            <h2>First Blog Post</h2>
-            <p>Welcome to my blog! This is a simple blog post example.</p>
-        </div>
-
-        <div class="blog-post " >
-            <h2>Second Blog Post</h2>
-            <p>Another blog post with some content...</p>
-        </div>
-
-        <div class="blog-post">
-            <h2>Third Blog Post</h2>
-            <p>More blog content coming soon!</p>
+    <div class="main-content row">
+        <div class="col-md-8">
+            
+            <button class="theme-toggle" onclick="toggleTheme()">🌙</button>
+    
+            <div class="blog-post">
+                <h2>First Blog Post</h2>
+                <p>Welcome to my blog! This is a simple blog post example.</p>
+            </div>
+    
+            <div class="blog-post " >
+                <h2>Second Blog Post</h2>
+                <p>Another blog post with some content...</p>
+            </div>
+    
+            <div class="blog-post">
+                <h2>Third Blog Post</h2>
+                <p>More blog content coming soon!</p>
+            </div>
         </div>
     </div>
 

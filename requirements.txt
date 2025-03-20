@@ -3,3 +3,4 @@ gunicorn
 flask-restful 
 flask-jwt-extended
 flask-sqlalchemy
+psycopg2-binary
