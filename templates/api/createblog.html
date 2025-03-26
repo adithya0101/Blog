@@ -1,12 +1,278 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Create New blog</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Compose Blog</title>
+    <style>
+        /* General Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Roboto, Arial, sans-serif;
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+
+        /* Light & Dark Mode */
+        :root {
+            --bg-color: #ffffff;
+            --text-color: #333;
+            --nav-bg: #f4f4f4;
+            --blog-bg: #fff;
+        }
+
+        .dark-mode {
+            --bg-color: #1e1e1e;
+            --text-color: #f1f1f1;
+            --nav-bg: #333;
+            --blog-bg: #252525;
+        }
+
+        body {
+            background: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Left Sidebar */
+        .sidebar {
+            width: 150px;
+            background: var(--nav-bg);
+            padding: 20px;
+            position: fixed;
+            height: 100vh;
+        }
+
+        .sidebar h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .menu {
+            list-style: none;
+            padding: 0;
+        }
+
+        .menu li {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .menu li a {
+            text-decoration: none;
+            color: var(--text-color);
+            display: block;
+            font-size: 18px;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 150px;
+            flex-grow: 1;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Top Space Container */
+        .top-space {
+            height: 60px;
+            position: relative;
+            background: transparent;
+        }
+
+        /* Theme Toggle Button */
+        .theme-toggle {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            background: var(--text-color);
+            color: var(--bg-color);
+            border: none;
+            padding: 8px 12px;
+            cursor: pointer;
+            border-radius: 5px;
+            z-index: 10;
+        }
+
+        /* Compose Blog Styles */
+        .blog-compose {
+            flex-grow: 1;
+            padding: 20px;
+            overflow-y: auto;
+            background: var(--blog-bg);
+        }
+
+        .blog-title, .blog-content {
+            width: 100%;
+            margin-bottom: 15px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background: var(--bg-color);
+            color: var(--text-color);
+        }
+
+        .blog-title {
+            height: 50px;
+        }
+
+        .blog-content {
+            height: 300px;
+            resize: vertical;
+        }
+
+        .formatting-toolbar {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .formatting-button {
+            background: var(--nav-bg);
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        .char-count {
+            text-align: right;
+            color: #888;
+            margin-bottom: 10px;
+        }
+
+        .post-button {
+            width: 100%;
+            padding: 10px;
+            background-color: blue;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: not-allowed;
+            transition: background-color 0.3s;
+        }
+
+        .post-button.active {
+            background-color: green;
+            cursor: pointer;
+        }
+
+        .post-button.error {
+            background-color: red;
+        }
+    </style>
 </head>
 <body>
-  <a href='/'><button>Back to Home</button></a>
+    <!-- Left Sidebar -->
+    <div class="sidebar">
+        <h2>My Blog</h2>
+        <ul class="menu">
+            <li><a href="/">Home</a></li>
+            <li><a href="/createblog">Compose</a></li>
+            <li><a href="/myblog">My Blogs</a></li>
+            <li><a href="/profile">Profile</a></li>
+            <li><a href="/login">Log Out</a></li>
+        </ul>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Top Space with Theme Toggle -->
+        <div class="top-space">
+            <button class="theme-toggle" onclick="toggleTheme()">🌙</button>
+        </div>
+
+        <!-- Blog Compose Area -->
+        <div class="blog-compose">
+            <h2>Compose New Blog</h2>
+            <input type="text" class="blog-title" placeholder="Enter Blog Title" maxlength="100" id="blogTitle">
+            <div class="char-count" id="titleCharCount">0/100</div>
+
+            <div class="formatting-toolbar">
+                <button class="formatting-button" onclick="formatText('bold')"><strong>B</strong></button>
+                <button class="formatting-button" onclick="formatText('italic')"><em>I</em></button>
+                <button class="formatting-button" onclick="formatText('underline')"><u>U</u></button>
+            </div>
+
+            <textarea class="blog-content" placeholder="Write your blog content here..." maxlength="500" id="blogContent"></textarea>
+            <div class="char-count" id="contentCharCount">0/500</div>
+
+            <button class="post-button" id="postButton">Post Blog</button>
+        </div>
+    </div>
+
+    <script>
+        function toggleTheme() {
+            document.body.classList.toggle("dark-mode");
+            let button = document.querySelector(".theme-toggle");
+            if (document.body.classList.contains("dark-mode")) {
+                button.innerHTML = "☀️";
+            } else {
+                button.innerHTML = "🌙";
+            }
+        }
+
+        const blogTitle = document.getElementById('blogTitle');
+        const blogContent = document.getElementById('blogContent');
+        const titleCharCount = document.getElementById('titleCharCount');
+        const contentCharCount = document.getElementById('contentCharCount');
+        const postButton = document.getElementById('postButton');
+
+        blogTitle.addEventListener('input', updateCharCount);
+        blogContent.addEventListener('input', updateCharCount);
+
+        function updateCharCount() {
+            titleCharCount.textContent = `${blogTitle.value.length}/100`;
+            contentCharCount.textContent = `${blogContent.value.length}/500`;
+            validateBlogPost();
+        }
+
+        function validateBlogPost() {
+            const titleLength = blogTitle.value.length;
+            const contentLength = blogContent.value.length;
+
+            if (titleLength > 0 && contentLength > 0 && contentLength <= 500) {
+                postButton.disabled = false;
+                postButton.classList.add('active');
+            } else {
+                postButton.disabled = true;
+                postButton.classList.remove('active');
+            }
+        }
+
+        function formatText(type) {
+            const content = blogContent;
+            const start = content.selectionStart;
+            const end = content.selectionEnd;
+            const selectedText = content.value.substring(start, end);
+
+            let formattedText;
+            switch(type) {
+                case 'bold':
+                    formattedText = `**${selectedText}**`;
+                    break;
+                case 'italic':
+                    formattedText = `*${selectedText}*`;
+                    break;
+                case 'underline':
+                    formattedText = `<u>${selectedText}</u>`;
+                    break;
+            }
+
+            content.value = content.value.substring(0, start) + formattedText + content.value.substring(end);
+            content.focus();
+            content.selectionStart = start;
+            content.selectionEnd = start + formattedText.length;
+        }
+
+        postButton.addEventListener('click', function() {
+            // Placeholder for blog post submission logic
+            alert('Blog post submitted!');
+        });
+    </script>
 </body>
 </html>
