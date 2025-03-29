@@ -21,6 +21,9 @@
             --nav-bg: #f4f4f4;
             --blog-bg: #fff;
             --success-color: #28a745;
+            --button-bg: #f4f4f4;
+            --button-text: #333;
+            --button-border: #ddd;
         }
 
         .dark-mode {
@@ -29,6 +32,9 @@
             --nav-bg: #333;
             --blog-bg: #252525;
             --success-color: #218838;
+            --button-bg: #4a4a4a;
+            --button-text: #ffffff;
+            --button-border: #666;
         }
 
         body {
@@ -109,7 +115,7 @@
             position: relative;
         }
 
-        .blog-title, .blog-content {
+        .blog-title {
             width: 100%;
             margin-bottom: 15px;
             padding: 10px;
@@ -117,28 +123,24 @@
             border-radius: 5px;
             background: var(--bg-color);
             color: var(--text-color);
-        }
-
-        .blog-title {
             height: 50px;
         }
 
-        .blog-content {
-            min-height: 300px;
-            resize: vertical;
+        .blog-content-wrapper {
+            position: relative;
+            margin-bottom: 15px;
         }
 
-        .blog-preview {
+        .blog-content {
             width: 100%;
             min-height: 300px;
-            margin-bottom: 15px;
             padding: 10px;
             border: 1px solid #ddd;
             border-radius: 5px;
             background: var(--bg-color);
             color: var(--text-color);
             overflow-y: auto;
-            display: none;
+            outline: none;
         }
 
         .formatting-toolbar {
@@ -148,11 +150,24 @@
         }
 
         .formatting-button {
-            background: var(--nav-bg);
-            border: none;
+            background: var(--button-bg);
+            color: var(--button-text);
+            border: 1px solid var(--button-border);
             padding: 5px 10px;
             cursor: pointer;
             border-radius: 5px;
+            min-width: 35px;
+            height: 35px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        .formatting-button.active {
+            background-color: #007bff;
+            color: white;
+            border-color: #0062cc;
         }
 
         .char-count {
@@ -186,15 +201,6 @@
         .post-button.error {
             background-color: red;
         }
-
-        .toggle-preview {
-            margin-left: 10px;
-            padding: 5px 10px;
-            background: var(--nav-bg);
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
     </style>
 </head>
 <body>
@@ -224,14 +230,14 @@
             <div class="char-count" id="titleCharCount">0/100</div>
 
             <div class="formatting-toolbar">
-                <button class="formatting-button" onclick="formatText('bold')"><strong>B</strong></button>
-                <button class="formatting-button" onclick="formatText('italic')"><em>I</em></button>
-                <button class="formatting-button" onclick="formatText('underline')"><u>U</u></button>
-                <button class="toggle-preview" id="togglePreview">Show Preview</button>
+                <button class="formatting-button" id="boldBtn" onclick="toggleFormat('bold')"><strong>B</strong></button>
+                <button class="formatting-button" id="italicBtn" onclick="toggleFormat('italic')"><em>I</em></button>
+                <button class="formatting-button" id="underlineBtn" onclick="toggleFormat('underline')"><u>U</u></button>
             </div>
 
-            <textarea class="blog-content" placeholder="Write your blog content here..." maxlength="500" id="blogContent"></textarea>
-            <div class="blog-preview" id="blogPreview"></div>
+            <div class="blog-content-wrapper">
+                <div class="blog-content" id="blogContent" contenteditable="true"></div>
+            </div>
             <div class="char-count" id="contentCharCount">0/500</div>
 
             <div class="post-button-container">
@@ -253,43 +259,51 @@
 
         const blogTitle = document.getElementById('blogTitle');
         const blogContent = document.getElementById('blogContent');
-        const blogPreview = document.getElementById('blogPreview');
         const titleCharCount = document.getElementById('titleCharCount');
         const contentCharCount = document.getElementById('contentCharCount');
         const postButton = document.getElementById('postButton');
-        const togglePreviewBtn = document.getElementById('togglePreview');
+        const boldBtn = document.getElementById('boldBtn');
+        const italicBtn = document.getElementById('italicBtn');
+        const underlineBtn = document.getElementById('underlineBtn');
         
-        let isPreviewVisible = false;
+        // Track active formatting
+        let activeFormats = {
+            bold: false,
+            italic: false,
+            underline: false
+        };
 
         blogTitle.addEventListener('input', updateCharCount);
-        blogContent.addEventListener('input', function() {
-            updateCharCount();
-            updatePreview();
-        });
+        blogContent.addEventListener('input', updateCharCount);
 
-        togglePreviewBtn.addEventListener('click', function() {
-            isPreviewVisible = !isPreviewVisible;
-            if (isPreviewVisible) {
-                blogPreview.style.display = 'block';
-                blogContent.style.display = 'none';
-                togglePreviewBtn.textContent = 'Show Editor';
-                updatePreview();
-            } else {
-                blogPreview.style.display = 'none';
-                blogContent.style.display = 'block';
-                togglePreviewBtn.textContent = 'Show Preview';
+        // Initialize the editor
+        blogContent.addEventListener('focus', function() {
+            if (blogContent.innerHTML === '') {
+                blogContent.innerHTML = '<p><br></p>';
             }
         });
 
+        // Make sure formatting is maintained when clicking back into the editor
+        blogContent.addEventListener('click', function() {
+            updateButtonStates();
+        });
+
+        // Update the character count and validate when content changes
         function updateCharCount() {
             titleCharCount.textContent = `${blogTitle.value.length}/100`;
-            contentCharCount.textContent = `${blogContent.value.length}/500`;
-            validateBlogPost();
+            
+            // Remove HTML tags for character count
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = blogContent.innerHTML;
+            const textContent = tempDiv.textContent || tempDiv.innerText || '';
+            const contentLength = textContent.length;
+            
+            contentCharCount.textContent = `${contentLength}/500`;
+            validateBlogPost(contentLength);
         }
 
-        function validateBlogPost() {
+        function validateBlogPost(contentLength) {
             const titleLength = blogTitle.value.length;
-            const contentLength = blogContent.value.length;
 
             if (titleLength > 0 && contentLength > 0 && contentLength <= 500) {
                 postButton.disabled = false;
@@ -300,62 +314,45 @@
             }
         }
 
-        function formatText(type) {
-            const content = blogContent;
-            const start = content.selectionStart;
-            const end = content.selectionEnd;
-            const selectedText = content.value.substring(start, end);
+        function toggleFormat(format) {
+            // Execute the appropriate formatting command
+            document.execCommand(format, false, null);
             
-            let formattedText;
-            let surroundText;
+            // Toggle the active state for the format
+            activeFormats[format] = !activeFormats[format];
+            updateButtonStates();
             
-            switch(type) {
-                case 'bold':
-                    surroundText = '**';
-                    break;
-                case 'italic':
-                    surroundText = '*';
-                    break;
-                case 'underline':
-                    surroundText = '<u>';
-                    formattedText = `<u>${selectedText}</u>`;
-                    break;
-            }
-            
-            if (type !== 'underline') {
-                formattedText = surroundText + selectedText + surroundText;
-            }
-
-            content.value = content.value.substring(0, start) + formattedText + content.value.substring(end);
-            content.focus();
-            updatePreview();
-            
-            // Position cursor after the inserted text
-            content.selectionStart = start + formattedText.length;
-            content.selectionEnd = start + formattedText.length;
+            // Focus back on the editor
+            blogContent.focus();
         }
 
-        function updatePreview() {
-            let content = blogContent.value;
+        function updateButtonStates() {
+            // Check what formatting is currently applied at the cursor position
+            activeFormats.bold = document.queryCommandState('bold');
+            activeFormats.italic = document.queryCommandState('italic');
+            activeFormats.underline = document.queryCommandState('underline');
             
-            // Format the content for preview
-            // Convert markdown bold
-            content = content.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-            
-            // Convert markdown italic
-            content = content.replace(/\*(.*?)\*/g, '<em>$1</em>');
-            
-            // Keep HTML underline tags
-            // No replacement needed as we're already using HTML tags
-            
-            // Handle paragraphs
-            content = content.replace(/\n\n/g, '</p><p>');
-            content = '<p>' + content + '</p>';
-            
-            blogPreview.innerHTML = content;
+            // Update button appearance based on active formats
+            boldBtn.classList.toggle('active', activeFormats.bold);
+            italicBtn.classList.toggle('active', activeFormats.italic);
+            underlineBtn.classList.toggle('active', activeFormats.underline);
         }
+
+        // Handle selection changes to update formatting buttons
+        document.addEventListener('selectionchange', function() {
+            if (document.activeElement === blogContent) {
+                updateButtonStates();
+            }
+        });
 
         postButton.addEventListener('click', function() {
+            // Get the HTML content of the editor
+            const htmlContent = blogContent.innerHTML;
+            
+            // For debugging, you can check what will be submitted
+            console.log("Title:", blogTitle.value);
+            console.log("Content:", htmlContent);
+            
             // Placeholder for blog post submission logic
             alert('Blog post submitted!');
         });
