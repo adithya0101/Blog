@@ -20,6 +20,7 @@
             --text-color: #333;
             --nav-bg: #f4f4f4;
             --blog-bg: #fff;
+            --success-color: #28a745;
         }
 
         .dark-mode {
@@ -27,6 +28,7 @@
             --text-color: #f1f1f1;
             --nav-bg: #333;
             --blog-bg: #252525;
+            --success-color: #218838;
         }
 
         body {
@@ -104,6 +106,7 @@
             padding: 20px;
             overflow-y: auto;
             background: var(--blog-bg);
+            position: relative;
         }
 
         .blog-title, .blog-content {
@@ -121,8 +124,21 @@
         }
 
         .blog-content {
-            height: 300px;
+            min-height: 300px;
             resize: vertical;
+        }
+
+        .blog-preview {
+            width: 100%;
+            min-height: 300px;
+            margin-bottom: 15px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background: var(--bg-color);
+            color: var(--text-color);
+            overflow-y: auto;
+            display: none;
         }
 
         .formatting-toolbar {
@@ -145,10 +161,16 @@
             margin-bottom: 10px;
         }
 
+        .post-button-container {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 10px;
+        }
+
         .post-button {
-            width: 100%;
+            width: 150px;
             padding: 10px;
-            background-color: blue;
+            background-color: var(--success-color);
             color: white;
             border: none;
             border-radius: 5px;
@@ -157,12 +179,21 @@
         }
 
         .post-button.active {
-            background-color: green;
+            background-color: var(--success-color);
             cursor: pointer;
         }
 
         .post-button.error {
             background-color: red;
+        }
+
+        .toggle-preview {
+            margin-left: 10px;
+            padding: 5px 10px;
+            background: var(--nav-bg);
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
         }
     </style>
 </head>
@@ -196,12 +227,16 @@
                 <button class="formatting-button" onclick="formatText('bold')"><strong>B</strong></button>
                 <button class="formatting-button" onclick="formatText('italic')"><em>I</em></button>
                 <button class="formatting-button" onclick="formatText('underline')"><u>U</u></button>
+                <button class="toggle-preview" id="togglePreview">Show Preview</button>
             </div>
 
             <textarea class="blog-content" placeholder="Write your blog content here..." maxlength="500" id="blogContent"></textarea>
+            <div class="blog-preview" id="blogPreview"></div>
             <div class="char-count" id="contentCharCount">0/500</div>
 
-            <button class="post-button" id="postButton">Post Blog</button>
+            <div class="post-button-container">
+                <button class="post-button" id="postButton">Post Blog</button>
+            </div>
         </div>
     </div>
 
@@ -218,12 +253,33 @@
 
         const blogTitle = document.getElementById('blogTitle');
         const blogContent = document.getElementById('blogContent');
+        const blogPreview = document.getElementById('blogPreview');
         const titleCharCount = document.getElementById('titleCharCount');
         const contentCharCount = document.getElementById('contentCharCount');
         const postButton = document.getElementById('postButton');
+        const togglePreviewBtn = document.getElementById('togglePreview');
+        
+        let isPreviewVisible = false;
 
         blogTitle.addEventListener('input', updateCharCount);
-        blogContent.addEventListener('input', updateCharCount);
+        blogContent.addEventListener('input', function() {
+            updateCharCount();
+            updatePreview();
+        });
+
+        togglePreviewBtn.addEventListener('click', function() {
+            isPreviewVisible = !isPreviewVisible;
+            if (isPreviewVisible) {
+                blogPreview.style.display = 'block';
+                blogContent.style.display = 'none';
+                togglePreviewBtn.textContent = 'Show Editor';
+                updatePreview();
+            } else {
+                blogPreview.style.display = 'none';
+                blogContent.style.display = 'block';
+                togglePreviewBtn.textContent = 'Show Preview';
+            }
+        });
 
         function updateCharCount() {
             titleCharCount.textContent = `${blogTitle.value.length}/100`;
@@ -249,24 +305,54 @@
             const start = content.selectionStart;
             const end = content.selectionEnd;
             const selectedText = content.value.substring(start, end);
-
+            
             let formattedText;
+            let surroundText;
+            
             switch(type) {
                 case 'bold':
-                    formattedText = `**${selectedText}**`;
+                    surroundText = '**';
                     break;
                 case 'italic':
-                    formattedText = `*${selectedText}*`;
+                    surroundText = '*';
                     break;
                 case 'underline':
+                    surroundText = '<u>';
                     formattedText = `<u>${selectedText}</u>`;
                     break;
+            }
+            
+            if (type !== 'underline') {
+                formattedText = surroundText + selectedText + surroundText;
             }
 
             content.value = content.value.substring(0, start) + formattedText + content.value.substring(end);
             content.focus();
-            content.selectionStart = start;
+            updatePreview();
+            
+            // Position cursor after the inserted text
+            content.selectionStart = start + formattedText.length;
             content.selectionEnd = start + formattedText.length;
+        }
+
+        function updatePreview() {
+            let content = blogContent.value;
+            
+            // Format the content for preview
+            // Convert markdown bold
+            content = content.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+            
+            // Convert markdown italic
+            content = content.replace(/\*(.*?)\*/g, '<em>$1</em>');
+            
+            // Keep HTML underline tags
+            // No replacement needed as we're already using HTML tags
+            
+            // Handle paragraphs
+            content = content.replace(/\n\n/g, '</p><p>');
+            content = '<p>' + content + '</p>';
+            
+            blogPreview.innerHTML = content;
         }
 
         postButton.addEventListener('click', function() {
