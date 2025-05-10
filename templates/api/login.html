@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Page</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Roboto, Arial, sans-serif;
+        }
+
+        body {
+            display: flex;
+            height: 100vh;
+            background: #f0f2f5;
+        }
+
+        .left-column {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: #f0f2f5;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .right-column {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: white;
+            padding: 20px;
+        }
+
+        .login-container {
+            width: 350px;
+            padding: 30px;
+            background: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .login-container h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        #loginButton {
+            width: 100%;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-bottom: 10px;
+        }
+
+        .google-login {
+            width: 100%;
+            padding: 10px;
+            background-color: #fff;
+            color: #757575;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        .google-login img {
+            width: 20px;
+            margin-right: 10px;
+        }
+
+        .additional-links {
+            text-align: center;
+            margin-top: 15px;
+        }
+
+        .additional-links a {
+            color: #1877F2;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="left-column">
+        <h1>Welcome to Our App</h1>
+        <p>Discover amazing features and connect with us!</p>
+        <img src="/api/placeholder/400/300" alt="App Introduction" style="max-width: 100%; margin-top: 20px;">
+    </div>
+    
+    <div class="right-column">
+        <div class="login-container">
+            <h2>Login</h2>
+            <form id="loginForm">
+                <div class="input-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" name="username" required>
+                </div>
+                <div class="input-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" required>
+                </div>
+                <button type="button" id="loginButton">Log In</button>
+                
+                <div class="google-login" id="googleLogin">
+                    <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google-icon.svg" alt="Google logo">
+                    Login with Google
+                </div>
+                
+                <div class="additional-links">
+                    <a href="#" id="forgotPassword">Forgot Password?</a> | 
+                    <a href="{{ url_for('signup') }}"id="newaccount">Create New Account</a>
+
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Basic login validation
+        const loginButton = document.getElementById('loginButton');
+        const usernameInput = document.getElementById('username');
+        const passwordInput = document.getElementById('password');
+
+        loginButton.addEventListener('click', function() {
+            if (usernameInput.value && passwordInput.value) {
+                // In a real app, this would involve server-side authentication
+                alert('Login attempted');
+                // window.location.href = 'dashboard.html';
+            } else {
+                alert('Please enter username and password');
+            }
+        });
+
+        // Google Login Handler (placeholder)
+        const googleLoginButton = document.getElementById('googleLogin');
+        googleLoginButton.addEventListener('click', function() {
+            // In a real implementation, this would trigger Google OAuth flow
+            alert('Google Login clicked - requires server-side implementation');
+        });
+    </script>
+</body>
+</html>

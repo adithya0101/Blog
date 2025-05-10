@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Profile</title>
+    <style>
+        /* General Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Roboto, Arial, sans-serif;
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+
+        /* Light & Dark Mode */
+        :root {
+            --bg-color: #ffffff;
+            --text-color: #333;
+            --nav-bg: #f4f4f4;
+            --blog-bg: #fff;
+        }
+
+        .dark-mode {
+            --bg-color: #1e1e1e;
+            --text-color: #f1f1f1;
+            --nav-bg: #333;
+            --blog-bg: #252525;
+        }
+
+        body {
+            background: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Left Sidebar */
+        .sidebar {
+            width: 150px;
+            background: var(--nav-bg);
+            padding: 20px;
+            position: fixed;
+            height: 100vh;
+        }
+
+        .sidebar h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .menu {
+            list-style: none;
+            padding: 0;
+        }
+
+        .menu li {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .menu li a {
+            text-decoration: none;
+            color: var(--text-color);
+            display: block;
+            font-size: 18px;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 150px;
+            flex-grow: 1;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Top Space Container */
+        .top-space {
+            height: 60px;
+            position: relative;
+            background: transparent;
+        }
+
+        /* Theme Toggle Button */
+        .theme-toggle {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            background: var(--text-color);
+            color: var(--bg-color);
+            border: none;
+            padding: 8px 12px;
+            cursor: pointer;
+            border-radius: 5px;
+            z-index: 10;
+        }
+
+        /* Profile Styles */
+        .profile-container {
+            flex-grow: 1;
+            padding: 20px;
+            overflow-y: auto;
+            background: var(--blog-bg);
+        }
+
+        .profile-section {
+            background: var(--bg-color);
+            border-radius: 5px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .profile-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 10px;
+        }
+
+        .profile-row input {
+            flex-grow: 1;
+            margin-right: 10px;
+            padding: 5px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            display: none;
+        }
+
+        .profile-row.editing input {
+            display: block;
+        }
+
+        .profile-row.editing .display-text {
+            display: none;
+        }
+
+        .edit-button, .save-button {
+            cursor: pointer;
+            color: blue;
+            background: none;
+            border: none;
+        }
+
+        .save-button {
+            color: green;
+            display: none;
+        }
+
+        .profile-row.editing .save-button {
+            display: block;
+        }
+
+        .fixed-details {
+            background: var(--nav-bg);
+            padding: 15px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Left Sidebar -->
+    <div class="sidebar">
+        <h2>My Blog</h2>
+        <ul class="menu">
+            <li><a href="/">Home</a></li>
+            <li><a href="/createblog">Compose</a></li>
+            <li><a href="/myblog">My Blogs</a></li>
+            <li><a href="/profile">Profile</a></li>
+            <li><a href="/login">Log Out</a></li>
+        </ul>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Top Space with Theme Toggle -->
+        <div class="top-space">
+            <button class="theme-toggle" onclick="toggleTheme()">🌙</button>
+        </div>
+
+        <!-- Profile Container -->
+        <div class="profile-container">
+            <h2>User Profile</h2>
+
+            <div class="profile-section">
+                <div class="profile-row" id="nameRow">
+                    <span>Name:</span>
+                    <span class="display-text" id="nameDisplay">John Doe</span>
+                    <input type="text" id="nameInput" maxlength="50">
+                    <button class="edit-button" onclick="toggleEdit('nameRow')">Edit</button>
+                    <button class="save-button" onclick="saveEdit('nameRow')">Save</button>
+                </div>
+
+                <div class="profile-row" id="bioRow">
+                    <span>Bio:</span>
+                    <span class="display-text" id="bioDisplay">Web Developer and Tech Enthusiast</span>
+                    <input type="text" id="bioInput" maxlength="100">
+                    <button class="edit-button" onclick="toggleEdit('bioRow')">Edit</button>
+                    <button class="save-button" onclick="saveEdit('bioRow')">Save</button>
+                </div>
+            </div>
+
+            <div class="profile-section fixed-details">
+                <h3>Account Details</h3>
+                <p><strong>Username:</strong> johndoe123</p>
+                <p><strong>Email:</strong> john.doe@example.com</p>
+                <p><strong>Gender:</strong> Male</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleTheme() {
+            document.body.classList.toggle("dark-mode");
+            let button = document.querySelector(".theme-toggle");
+            if (document.body.classList.contains("dark-mode")) {
+                button.innerHTML = "☀️";
+            } else {
+                button.innerHTML = "🌙";
+            }
+        }
+
+        function toggleEdit(rowId) {
+            const row = document.getElementById(rowId);
+            row.classList.add('editing');
+
+            const displayText = row.querySelector('.display-text');
+            const input = row.querySelector('input');
+            input.value = displayText.textContent;
+            input.focus();
+        }
+
+        function saveEdit(rowId) {
+            const row = document.getElementById(rowId);
+            const displayText = row.querySelector('.display-text');
+            const input = row.querySelector('input');
+
+            displayText.textContent = input.value;
+            row.classList.remove('editing');
+
+            // Placeholder for saving to database
+            alert(`Saved ${rowId === 'nameRow' ? 'Name' : 'Bio'}: ${input.value}`);
+        }
+    </script>
+</body>
+</html>
