@@ -16,27 +16,27 @@ def index():
     
 @app.route('/login')
 def login():#login page
-    return render_template('api/login.html')
+    return render_template('auth/login.html')
 
 @app.route('/signup')
 def signup():#signup page
-    return render_template('api/signup.html')
+    return render_template('auth/signup.html')
 
 @app.route('/myblog')
 def view_blog():
-    return render_template('api/myblog.html')
+    return render_template('myblog.html')
     
 @app.route('/createblog')
 def add_blog():#compose new blog
-    return render_template('api/createblog.html')
+    return render_template('createblog.html')
     
 @app.route('/home')
 def home():#home button
-    return render_template('api/index.html')
+    return render_template('index.html')
     
 @app.route('/profile')
 def about():#profile page
-    return render_template('api/profile.html')
+    return render_template('profile.html')
     
 
     

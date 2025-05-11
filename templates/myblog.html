@@ -1,13 +1,19 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>My blogs</title>
-</head>
-<body>
-  <p>blogs</p>
-<a>href=''<button></button></a>
-</body>
-</html>
+{% extends "base.html" %}
+
+{% block title %}My Blogs{% endblock %}
+
+{% block content %}
+<div class="blog-posts-container">
+    {% if user_blogs %}
+        {% for blog in user_blogs %}
+            <div class="blog-post">
+                <h2>{{ blog.title }}</h2>
+                <p style="font-size: 0.9rem; color: gray;">Posted on {{ blog.created_at.strftime("%B %d, %Y %H:%M") }}</p>
+                <p>{{ blog.content }}</p>
+            </div>
+        {% endfor %}
+    {% else %}
+        <p style="font-size: 1.1rem; color: gray;">You haven't posted any blogs yet.</p>
+    {% endif %}
+</div>
+{% endblock %}

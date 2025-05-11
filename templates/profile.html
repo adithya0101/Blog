@@ -1,250 +1,390 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>User Profile</title>
-    <style>
-        /* General Styles */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: Roboto, Arial, sans-serif;
-            transition: background 0.3s ease, color 0.3s ease;
-        }
+{% extends "base.html" %}
 
-        /* Light & Dark Mode */
-        :root {
-            --bg-color: #ffffff;
-            --text-color: #333;
-            --nav-bg: #f4f4f4;
-            --blog-bg: #fff;
-        }
+{% block title %}User Profile{% endblock %}
 
-        .dark-mode {
-            --bg-color: #1e1e1e;
-            --text-color: #f1f1f1;
-            --nav-bg: #333;
-            --blog-bg: #252525;
-        }
+{% block head_extra %}
+<style>
+    /* Reddit-Style Profile Specific Styles */
+    .profile-container {
+        flex-grow: 1;
+        padding: 30px;
+        overflow-y: auto;
+        background: var(--blog-bg);
+        max-width: 800px;
+        margin: 0 auto;
+    }
 
-        body {
-            background: var(--bg-color);
-            color: var(--text-color);
-            display: flex;
-            height: 100vh;
-            overflow: hidden;
-        }
+    .profile-heading {
+        margin-bottom: 25px;
+        font-weight: 500;
+        font-size: 20px;
+        color: var(--text-color);
+    }
 
-        /* Left Sidebar */
-        .sidebar {
-            width: 150px;
-            background: var(--nav-bg);
-            padding: 20px;
-            position: fixed;
-            height: 100vh;
-        }
+    .profile-card {
+        background: var(--bg-color);
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 25px;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+        border: 1px solid rgba(128, 128, 128, 0.2);
+    }
 
-        .sidebar h2 {
-            text-align: center;
-            margin-bottom: 20px;
-        }
+    .profile-field {
+        margin-bottom: 20px;
+        position: relative; /* Added for better positioning control */
+    }
 
-        .menu {
-            list-style: none;
-            padding: 0;
-        }
+    .field-label {
+        display: block;
+        font-weight: 500;
+        margin-bottom: 8px;
+        color: var(--text-color);
+    }
 
-        .menu li {
-            padding: 10px;
-            border-bottom: 1px solid #ddd;
-        }
+    .field-value {
+        display: block;
+        font-size: 16px;
+        color: var(--text-color);
+        margin-bottom: 12px;
+        word-break: break-word;
+    }
 
-        .menu li a {
-            text-decoration: none;
-            color: var(--text-color);
-            display: block;
-            font-size: 18px;
-        }
+    .bio-value {
+        line-height: 1.5;
+        white-space: pre-wrap;
+        max-height: 150px;
+        overflow-y: auto;
+    }
 
-        /* Main Content */
-        .main-content {
-            margin-left: 150px;
-            flex-grow: 1;
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
+    .field-input {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        background-color: var(--bg-color);
+        color: var(--text-color);
+        font-size: 14px;
+        display: none;
+        margin-bottom: 12px;
+    }
 
-        /* Top Space Container */
-        .top-space {
-            height: 60px;
-            position: relative;
-            background: transparent;
-        }
+    .bio-input {
+        min-height: 100px;
+        height: 150px; /* Fixed height to match bio-value max-height */
+        resize: none; /* Prevent resizing which could cause layout shifts */
+        position: absolute; /* Position absolutely within the container */
+        top: 35px; /* Position below the label */
+        left: 0;
+        right: 0;
+        z-index: 1;
+    }
+    
+    /* Position the save/cancel buttons correctly when editing */
+    .profile-field.editing .button-container {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        z-index: 2;
+        background: var(--bg-color);
+        padding-top: 10px;
+    }
 
-        /* Theme Toggle Button */
-        .theme-toggle {
-            position: absolute;
-            top: 10px;
-            right: 15px;
-            background: var(--text-color);
-            color: var(--bg-color);
-            border: none;
-            padding: 8px 12px;
-            cursor: pointer;
-            border-radius: 5px;
-            z-index: 10;
-        }
+    .profile-field.editing .field-value {
+        display: none;
+    }
 
-        /* Profile Styles */
-        .profile-container {
-            flex-grow: 1;
-            padding: 20px;
-            overflow-y: auto;
-            background: var(--blog-bg);
-        }
+    .profile-field.editing .field-input {
+        display: block;
+    }
 
-        .profile-section {
-            background: var(--bg-color);
-            border-radius: 5px;
-            padding: 20px;
-            margin-bottom: 20px;
-        }
+    .action-button {
+        padding: 8px 16px;
+        border-radius: 4px;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        border: none;
+        background-color: rgba(46, 125, 50, 0.1);
+        color: #2e7d32;
+    }
 
-        .profile-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-            border-bottom: 1px solid #ddd;
-            padding-bottom: 10px;
-        }
+    .action-button:hover {
+        background-color: rgba(46, 125, 50, 0.2);
+    }
 
-        .profile-row input {
-            flex-grow: 1;
-            margin-right: 10px;
-            padding: 5px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            display: none;
-        }
+    .dark-mode .action-button {
+        background-color: rgba(76, 175, 80, 0.1);
+        color: #4caf50;
+    }
 
-        .profile-row.editing input {
-            display: block;
-        }
+    .dark-mode .action-button:hover {
+        background-color: rgba(76, 175, 80, 0.2);
+    }
 
-        .profile-row.editing .display-text {
-            display: none;
-        }
+    .save-button {
+        background-color: #2e7d32;
+        color: white;
+        margin-right: 10px;
+        display: none;
+    }
 
-        .edit-button, .save-button {
-            cursor: pointer;
-            color: blue;
-            background: none;
-            border: none;
-        }
+    .save-button:hover {
+        background-color: #2e7d32;
+        opacity: 0.9;
+    }
 
-        .save-button {
-            color: green;
-            display: none;
-        }
+    .cancel-button {
+        background-color: transparent;
+        color: #666;
+        border: 1px solid #ddd;
+        display: none;
+    }
 
-        .profile-row.editing .save-button {
-            display: block;
-        }
+    .cancel-button:hover {
+        background-color: rgba(0, 0, 0, 0.05);
+    }
 
-        .fixed-details {
-            background: var(--nav-bg);
-            padding: 15px;
-            border-radius: 5px;
-        }
-    </style>
-</head>
-<body>
-    <!-- Left Sidebar -->
-    <div class="sidebar">
-        <h2>My Blog</h2>
-        <ul class="menu">
-            <li><a href="/">Home</a></li>
-            <li><a href="/createblog">Compose</a></li>
-            <li><a href="/myblog">My Blogs</a></li>
-            <li><a href="/profile">Profile</a></li>
-            <li><a href="/login">Log Out</a></li>
-        </ul>
+    .dark-mode .cancel-button {
+        color: #aaa;
+        border: 1px solid #555;
+    }
+
+    .dark-mode .cancel-button:hover {
+        background-color: rgba(255, 255, 255, 0.05);
+    }
+
+    .profile-field.editing .edit-button {
+        display: none;
+    }
+
+    .profile-field.editing .save-button,
+    .profile-field.editing .cancel-button {
+        display: inline-block;
+    }
+
+    .fixed-details-card {
+        background: var(--nav-bg);
+        border-radius: 8px;
+        padding: 20px;
+    }
+
+    .detail-item {
+        display: flex;
+        padding: 10px 0;
+        border-bottom: 1px solid rgba(128, 128, 128, 0.2);
+    }
+
+    .detail-item:last-child {
+        border-bottom: none;
+    }
+
+    .detail-label {
+        font-weight: 500;
+        width: 120px;
+        color: var(--text-color);
+    }
+
+    .detail-value {
+        flex-grow: 1;
+        color: var(--text-color);
+    }
+
+    .button-container {
+        display: flex;
+        margin-top: 8px;
+    }
+    
+    /* Fix for the container to maintain height */
+    #bioField {
+        min-height: 220px; /* Approximate height to accommodate bio content plus buttons */
+        position: relative; /* Needed for absolute positioning of children */
+        padding-bottom: 50px; /* Make room for the button container */
+    }
+    
+    /* Prevent page reflow by using a placeholder */
+    .bio-placeholder {
+        visibility: hidden;
+        height: 0;
+        overflow: hidden;
+        display: block;
+    }
+    
+    /* Prevent window resize and maintain layout */
+    .profile-container {
+        min-height: 100vh; /* Ensure container takes full height */
+    }
+    
+    body, html {
+        overflow-x: hidden; /* Prevent horizontal scrolling */
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Profile Container -->
+<div class="profile-container">
+    <h2 class="profile-heading">Account Settings</h2>
+
+    <!-- Display Name Section -->
+    <div class="profile-card">
+        <div class="profile-field" id="nameField">
+            <label class="field-label">Display Name</label>
+            <span class="field-value" id="nameDisplay">John Doe</span>
+            <input type="text" class="field-input" id="nameInput" maxlength="50" placeholder="Enter your display name">
+            <div class="button-container">
+                <button class="action-button edit-button" onclick="toggleEdit('nameField')">Change</button>
+                <button class="action-button save-button" onclick="saveEdit('nameField', 'name')">Save</button>
+                <button class="action-button cancel-button" onclick="cancelEdit('nameField')">Cancel</button>
+            </div>
+        </div>
     </div>
 
-    <!-- Main Content -->
-    <div class="main-content">
-        <!-- Top Space with Theme Toggle -->
-        <div class="top-space">
-            <button class="theme-toggle" onclick="toggleTheme()">🌙</button>
-        </div>
-
-        <!-- Profile Container -->
-        <div class="profile-container">
-            <h2>User Profile</h2>
-
-            <div class="profile-section">
-                <div class="profile-row" id="nameRow">
-                    <span>Name:</span>
-                    <span class="display-text" id="nameDisplay">John Doe</span>
-                    <input type="text" id="nameInput" maxlength="50">
-                    <button class="edit-button" onclick="toggleEdit('nameRow')">Edit</button>
-                    <button class="save-button" onclick="saveEdit('nameRow')">Save</button>
-                </div>
-
-                <div class="profile-row" id="bioRow">
-                    <span>Bio:</span>
-                    <span class="display-text" id="bioDisplay">Web Developer and Tech Enthusiast</span>
-                    <input type="text" id="bioInput" maxlength="100">
-                    <button class="edit-button" onclick="toggleEdit('bioRow')">Edit</button>
-                    <button class="save-button" onclick="saveEdit('bioRow')">Save</button>
-                </div>
-            </div>
-
-            <div class="profile-section fixed-details">
-                <h3>Account Details</h3>
-                <p><strong>Username:</strong> johndoe123</p>
-                <p><strong>Email:</strong> john.doe@example.com</p>
-                <p><strong>Gender:</strong> Male</p>
+    <!-- Bio Section -->
+    <div class="profile-card">
+        <div class="profile-field" id="bioField">
+            <label class="field-label">About (Bio)</label>
+            <span class="field-value bio-value" id="bioDisplay">Web Developer and Tech Enthusiast with a passion for creating intuitive user experiences and scalable applications. Currently exploring new technologies and building awesome projects.</span>
+            <textarea class="field-input bio-input" id="bioInput" maxlength="200" placeholder="Tell us about yourself"></textarea>
+            <!-- Invisible placeholder to maintain layout -->
+            <div class="bio-placeholder" id="bioPlaceholder">Web Developer and Tech Enthusiast with a passion for creating intuitive user experiences and scalable applications. Currently exploring new technologies and building awesome projects.</div>
+            <div class="button-container">
+                <button class="action-button edit-button" onclick="toggleEdit('bioField')">Change</button>
+                <button class="action-button save-button" onclick="saveEdit('bioField', 'bio')">Save</button>
+                <button class="action-button cancel-button" onclick="cancelEdit('bioField')">Cancel</button>
             </div>
         </div>
     </div>
 
-    <script>
-        function toggleTheme() {
-            document.body.classList.toggle("dark-mode");
-            let button = document.querySelector(".theme-toggle");
-            if (document.body.classList.contains("dark-mode")) {
-                button.innerHTML = "☀️";
-            } else {
-                button.innerHTML = "🌙";
-            }
+    <!-- Account Information Section -->
+    <div class="profile-card fixed-details-card">
+        <h3 class="field-label">Account Information</h3>
+        <div class="detail-item">
+            <span class="detail-label">Username</span>
+            <span class="detail-value">johndoe123</span>
+        </div>
+        <div class="detail-item">
+            <span class="detail-label">Email</span>
+            <span class="detail-value">john.doe@example.com</span>
+        </div>
+        <div class="detail-item">
+            <span class="detail-label">Gender</span>
+            <span class="detail-value">Male</span>
+        </div>
+        <div class="detail-item">
+            <span class="detail-label">Joined</span>
+            <span class="detail-value">May 5, 2023</span>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Store original page height
+    let originalPageHeight;
+    
+    function toggleEdit(fieldId) {
+        // Prevent window scrolling temporarily
+        document.body.style.overflow = 'hidden';
+        setTimeout(() => {
+            document.body.style.overflow = '';
+        }, 10);
+        
+        const field = document.getElementById(fieldId);
+        field.classList.add('editing');
+        
+        const displayEl = field.querySelector('.field-value');
+        const inputEl = field.querySelector('.field-input');
+        
+        inputEl.value = displayEl.textContent;
+        
+        // For bio field specifically
+        if (fieldId === 'bioField') {
+            // Lock the page height to prevent any resizing
+            document.documentElement.style.height = '100%';
+            document.body.style.height = '100%';
+            
+            // Ensure textarea height matches content height to prevent layout shifts
+            const bioCard = field.closest('.profile-card');
+            const bioCardHeight = bioCard.offsetHeight;
+            
+            // Set fixed height on the card to prevent shifting
+            bioCard.style.height = bioCardHeight + 'px';
+            
+            // Ensure buttons are visible
+            const buttonContainer = field.querySelector('.button-container');
+            buttonContainer.style.display = 'flex';
+            
+            // Copy text to placeholder to maintain space
+            document.getElementById('bioPlaceholder').textContent = displayEl.textContent;
         }
-
-        function toggleEdit(rowId) {
-            const row = document.getElementById(rowId);
-            row.classList.add('editing');
-
-            const displayText = row.querySelector('.display-text');
-            const input = row.querySelector('input');
-            input.value = displayText.textContent;
-            input.focus();
+        
+        // Wait a tiny bit before focusing to avoid layout shifts during transition
+        setTimeout(() => {
+            inputEl.focus();
+        }, 50);
+    }
+    
+    function saveEdit(fieldId, fieldType) {
+        const field = document.getElementById(fieldId);
+        const displayEl = field.querySelector('.field-value');
+        const inputEl = field.querySelector('.field-input');
+        
+        // Validate input if needed
+        if (inputEl.value.trim() === '') {
+            alert('Please enter a valid ' + fieldType);
+            return;
         }
-
-        function saveEdit(rowId) {
-            const row = document.getElementById(rowId);
-            const displayText = row.querySelector('.display-text');
-            const input = row.querySelector('input');
-
-            displayText.textContent = input.value;
-            row.classList.remove('editing');
-
-            // Placeholder for saving to database
-            alert(`Saved ${rowId === 'nameRow' ? 'Name' : 'Bio'}: ${input.value}`);
+        
+        // Temporarily prevent layout shifts
+        document.body.style.overflow = 'hidden';
+        
+        displayEl.textContent = inputEl.value;
+        field.classList.remove('editing');
+        
+        // Reset any fixed heights we set
+        if (fieldId === 'bioField') {
+            const bioCard = field.closest('.profile-card');
+            bioCard.style.height = '';
+            
+            // Reset the body/html height constraints
+            document.documentElement.style.height = '';
+            document.body.style.height = '';
         }
-    </script>
-</body>
-</html>
+        
+        // Re-enable scrolling after a brief delay to avoid layout shifts
+        setTimeout(() => {
+            document.body.style.overflow = '';
+        }, 10);
+        
+        // Here you would typically send data to server
+        console.log(`Saved ${fieldType}:`, inputEl.value);
+    }
+    
+    function cancelEdit(fieldId) {
+        // Temporarily prevent layout shifts
+        document.body.style.overflow = 'hidden';
+        
+        const field = document.getElementById(fieldId);
+        field.classList.remove('editing');
+        
+        // Reset any fixed heights we set
+        if (fieldId === 'bioField') {
+            const bioCard = field.closest('.profile-card');
+            bioCard.style.height = '';
+            
+            // Reset the body/html height constraints
+            document.documentElement.style.height = '';
+            document.body.style.height = '';
+        }
+        
+        // Re-enable scrolling after a brief delay to avoid layout shifts
+        setTimeout(() => {
+            document.body.style.overflow = '';
+        }, 10);
+    }
+</script>
+{% endblock %}
