@@ -1,8 +1,11 @@
 from flask import Flask, render_template, request, redirect, url_for
+from app.config import Config
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 
-app = Flask(__name__)
+def create_app(config_class=Config):
+    app = Flask(__name__)
+    app.config.from_object(config_class)
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres.kfverqmedtlikctuvfob:l@aws-0-ap-south-1.pooler.supabase.com:6543/postgres'
 
@@ -44,8 +47,4 @@ def about():#profile page
 def logout():#logout page
     return(render_template('index.html'))
 
-   
-
-if __name__ == '__main__':
-    app.run(host='0.0.0.0',debug=True)
 
