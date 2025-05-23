@@ -4,18 +4,17 @@ from flask_sqlalchemy import SQLAlchemy
 from supabase import create_client
 from datetime import datetime
 import extensions as extensions
-from extensions import db
 
 
 
+db=SQLAlchemy()
 
 def create_app(config_class=Config):
     app = Flask(__name__)
     app.config.from_object(config_class)
     
-    extensions.db.init_app(app)
-    extensions.ckeditor.init_app(app)
-    extensions.login_manager.init_app(app)
+    db.init_app(app)
+
 
     # Initialize Supabase client
     
@@ -26,8 +25,7 @@ def create_app(config_class=Config):
         return render_template('index.html')
     
     @app.route('/login')
-    def login():#login page
-
+    def login():
         return render_template('auth/login.html')
 
     @app.route('/signup')
@@ -55,9 +53,9 @@ def create_app(config_class=Config):
 
         return render_template('profile.html')
         
-    @app.route('/userlogout')
+    @app.route('/logout')
     def logout():#logout page
 
-        return render_template('index.html')
+        return render_template('auth/login.html')
 
     return app
