@@ -117,16 +117,16 @@
 <body>
     <div class="create-account-container">
         <h2>Create New Account</h2>
-        <form id="newAccountForm">
+        <form id="newAccountForm" action="{{ url_for('account.login') }}" method="POST">
             <div class="input-group">
                 <label for="newName">Full Name (20-50 chars)</label>
-                <input type="text" id="newName" name="newName" minlength="20" maxlength="50" required>
+                <input type="text" id="newName" name="newName" placeholder="Enter Name"="20" maxlength="50" required>
                 <div class="char-count" id="nameCount">0/50</div>
             </div>
 
             <div class="input-group">
                 <label for="newEmail">Email (20-80 chars)</label>
-                <input type="email" id="newEmail" name="newEmail" minlength="20" maxlength="80" required>
+                <input type="email" id="newEmail" name="newEmail" placeholder="yourname@gmail.com" minlength="20" maxlength="80" required>
                 <div class="char-count" id="emailCount">0/80</div>
             </div>
 

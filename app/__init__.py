@@ -1,13 +1,10 @@
 from flask import Flask, render_template, request, redirect, url_for
 from app.config import Config
-from flask_sqlalchemy import SQLAlchemy
 from supabase import create_client
 from datetime import datetime
-import extensions as extensions
+from extensions import db
 
 
-
-db=SQLAlchemy()
 
 def create_app(config_class=Config):
     app = Flask(__name__)
@@ -21,11 +18,11 @@ def create_app(config_class=Config):
 
     @app.route('/')
     def index():
-
         return render_template('index.html')
     
     @app.route('/login')
     def login():
+        if request
         return render_template('auth/login.html')
 
     @app.route('/signup')
@@ -52,10 +49,5 @@ def create_app(config_class=Config):
     def about():#profile page
 
         return render_template('profile.html')
-        
-    @app.route('/logout')
-    def logout():#logout page
-
-        return render_template('auth/login.html')
 
     return app
