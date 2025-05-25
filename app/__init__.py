@@ -20,14 +20,20 @@ def create_app(config_class=Config):
     def index():
         return render_template('index.html')
     
-    @app.route('/login')
+    @app.route('/auth/login', methods=['GET', 'POST'])
     def login():
-        if request
+        if request.method == 'POST':
+            username = request.form.get('username')
+            password = request.form.get('password')
+            # Add your authentication logic here
+            return redirect(url_for('index'))
         return render_template('auth/login.html')
 
-    @app.route('/signup')
-    def signup():#signup page
-
+    @app.route('/auth/signup', methods=['GET', 'POST'])
+    def signup():
+        if request.method == 'POST':
+            # Add your signup logic here
+            return redirect(url_for('login'))
         return render_template('auth/signup.html')
 
     @app.route('/myblog')

@@ -117,16 +117,16 @@
     <div class="right-column">
         <div class="login-container">
             <h2>Login</h2>
-            <form id="loginForm">
-                <div class="input-group"action="{{ url_for('login') }}" method="POST">
+            <form action="{{ url_for('login') }}" method="POST">
+                <div class="input-group">
                     <label for="username">Username</label>
-                    <input type="text" id="username" name="username" placeholder="alchemist123" maxlenght='100' required>
+                    <input type="text" id="username" name="username" placeholder="alchemist123" maxlength="100" required>
                 </div>
                 <div class="input-group">
                     <label for="password">Password</label>
                     <input type="password" id="password" name="password" required>
                 </div>
-                <button type="button" id="loginButton">Log In</button>
+                <button type="submit" id="loginButton">Log In</button>
                 
                 <div class="google-login" id="googleLogin">
                     <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google-icon.svg" alt="Google logo">
@@ -135,29 +135,13 @@
                 
                 <div class="additional-links">
                     <a href="#" id="forgotPassword">Forgot Password?</a> | 
-                    <a href="{{ url_for('signup') }}"id="newaccount">Create New Account</a>
-
+                    <a href="{{ url_for('signup') }}" id="newaccount">Create New Account</a>
                 </div>
             </form>
         </div>
     </div>
 
     <script>
-        // Basic login validation
-        const loginButton = document.getElementById('loginButton');
-        const usernameInput = document.getElementById('username');
-        const passwordInput = document.getElementById('password');
-
-        loginButton.addEventListener('click', function() {
-            if (usernameInput.value && passwordInput.value) {
-                // In a real app, this would involve server-side authentication
-                alert('Login attempted');
-                // window.location.href = 'dashboard.html';
-            } else {
-                alert('Please enter username and password');
-            }
-        });
-
         // Google Login Handler (placeholder)
         const googleLoginButton = document.getElementById('googleLogin');
         googleLoginButton.addEventListener('click', function() {

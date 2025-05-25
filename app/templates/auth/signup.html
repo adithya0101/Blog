@@ -68,9 +68,9 @@
         .create-account-button {
             width: 100%;
             padding: 12px;
-            background-color: white;
-            color: blue;
-            border: 1px solid blue;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
             border-radius: 4px;
             cursor: pointer;
             font-size: 16px;
@@ -78,8 +78,7 @@
         }
 
         .create-account-button:hover {
-            background-color: blue;
-            color: white;
+            opacity: 0.9;
         }
 
         .google-signup {
@@ -106,6 +105,16 @@
             margin-right: 10px;
         }
 
+        .login-link {
+            text-align: center;
+            margin-top: 15px;
+        }
+
+        .login-link a {
+            color: #1877F2;
+            text-decoration: none;
+        }
+
         @media (max-width: 480px) {
             .create-account-container {
                 width: 90%;
@@ -117,10 +126,10 @@
 <body>
     <div class="create-account-container">
         <h2>Create New Account</h2>
-        <form id="newAccountForm" action="{{ url_for('account.login') }}" method="POST">
+        <form action="{{ url_for('signup') }}" method="POST">
             <div class="input-group">
                 <label for="newName">Full Name (20-50 chars)</label>
-                <input type="text" id="newName" name="newName" placeholder="Enter Name"="20" maxlength="50" required>
+                <input type="text" id="newName" name="newName" placeholder="Enter Name" minlength="20" maxlength="50" required>
                 <div class="char-count" id="nameCount">0/50</div>
             </div>
 
@@ -144,7 +153,7 @@
 
             <div class="input-group">
                 <label for="confirmPassword">Confirm Password</label>
-                <input type="password" id="confirmPassword" name="confirmPassword" required disabled>
+                <input type="password" id="confirmPassword" name="confirmPassword" required>
             </div>
 
             <div class="input-group">
@@ -159,99 +168,50 @@
                 </div>
             </div>
 
-            <button type="button" class="create-account-button" id="createAccountButton">Create New Account</button>
+            <button type="submit" class="create-account-button">Create New Account</button>
 
             <div class="google-signup" id="googleSignup">
                 <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google-icon.svg" alt="Google logo">
                 Sign Up with Google
             </div>
+
+            <div class="login-link">
+                Already have an account? <a href="{{ url_for('login') }}">Login here</a>
+            </div>
         </form>
     </div>
 
     <script>
-        const newNameInput = document.getElementById('newName');
-        const newEmailInput = document.getElementById('newEmail');
-        const newUsernameInput = document.getElementById('newUsername');
-        const newPasswordInput = document.getElementById('newPassword');
-        const confirmPasswordInput = document.getElementById('confirmPassword');
-        const createAccountButton = document.getElementById('createAccountButton');
-        const googleSignupButton = document.getElementById('googleSignup');
-
         // Character count and input validation
         function updateCharCount(input, countElement) {
             countElement.textContent = `${input.value.length}/${input.maxLength}`;
         }
 
+        const newNameInput = document.getElementById('newName');
+        const newEmailInput = document.getElementById('newEmail');
+        const newUsernameInput = document.getElementById('newUsername');
+        const newPasswordInput = document.getElementById('newPassword');
+        const confirmPasswordInput = document.getElementById('confirmPassword');
+
         newNameInput.addEventListener('input', () => updateCharCount(newNameInput, document.getElementById('nameCount')));
         newEmailInput.addEventListener('input', () => updateCharCount(newEmailInput, document.getElementById('emailCount')));
         newUsernameInput.addEventListener('input', () => updateCharCount(newUsernameInput, document.getElementById('newUsernameCount')));
-        newPasswordInput.addEventListener('input', () => {
-            updateCharCount(newPasswordInput, document.getElementById('newPasswordCount'));
-            confirmPasswordInput.disabled = newPasswordInput.value.length < 8;
-        });
+        newPasswordInput.addEventListener('input', () => updateCharCount(newPasswordInput, document.getElementById('newPasswordCount')));
 
-        createAccountButton.addEventListener('click', function() {
-            const nameLength = newNameInput.value.length;
-            const emailLength = newEmailInput.value.length;
-            const usernameLength = newUsernameInput.value.length;
-            const passwordLength = newPasswordInput.value.length;
-            const confirmPassword = confirmPasswordInput.value;
-            const genderSelected = document.querySelector('input[name="gender"]:checked');
-
-            if (nameLength >= 20 && nameLength <= 50 &&
-                emailLength >= 20 && emailLength <= 80 &&
-                usernameLength >= 6 && usernameLength <= 15 &&
-                passwordLength >= 8 && passwordLength <= 10 &&
-                confirmPassword === newPasswordInput.value &&
-                genderSelected) {
-                
-                // Placeholder for account creation API
-                fetch('/api/create-account', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        name: newNameInput.value,
-                        email: newEmailInput.value,
-                        username: newUsernameInput.value,
-                        password: newPasswordInput.value,
-                        gender: genderSelected.value
-                    })
-                })
-                .then(response => {
-                    if (response.ok) {
-                        window.location.href = 'login.html';
-                    } else {
-                        alert('Account creation failed. Please try again.');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('Network error. Please try again.');
-                });
+        // Password confirmation validation
+        confirmPasswordInput.addEventListener('input', function() {
+            if (this.value !== newPasswordInput.value) {
+                this.setCustomValidity('Passwords do not match');
             } else {
-                alert('Please fill all fields correctly.');
+                this.setCustomValidity('');
             }
         });
 
+        // Google Signup Handler
+        const googleSignupButton = document.getElementById('googleSignup');
         googleSignupButton.addEventListener('click', function() {
-            // Placeholder for Google Signup
-            fetch('/api/google-signup', {
-                method: 'GET'
-            })
-            .then(response => {
-                if (response.ok) {
-                    // Redirect to Google OAuth signup
-                    window.location.href = response.url;
-                } else {
-                    alert('Google Signup failed');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Network error. Please try again.');
-            });
+            // In a real implementation, this would trigger Google OAuth flow
+            alert('Google Signup clicked - requires server-side implementation');
         });
     </script>
 </body>

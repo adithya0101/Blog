@@ -32,7 +32,6 @@
 
     .profile-field {
         margin-bottom: 20px;
-        position: relative; /* Added for better positioning control */
     }
 
     .field-label {
@@ -53,8 +52,7 @@
     .bio-value {
         line-height: 1.5;
         white-space: pre-wrap;
-        max-height: 150px;
-        overflow-y: auto;
+        min-height: 100px;
     }
 
     .field-input {
@@ -65,38 +63,18 @@
         background-color: var(--bg-color);
         color: var(--text-color);
         font-size: 14px;
-        display: none;
         margin-bottom: 12px;
+        display: none;
     }
 
     .bio-input {
         min-height: 100px;
-        height: 150px; /* Fixed height to match bio-value max-height */
-        resize: none; /* Prevent resizing which could cause layout shifts */
-        position: absolute; /* Position absolutely within the container */
-        top: 35px; /* Position below the label */
-        left: 0;
-        right: 0;
-        z-index: 1;
-    }
-    
-    /* Position the save/cancel buttons correctly when editing */
-    .profile-field.editing .button-container {
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        z-index: 2;
-        background: var(--bg-color);
-        padding-top: 10px;
+        resize: vertical;
     }
 
-    .profile-field.editing .field-value {
-        display: none;
-    }
-
-    .profile-field.editing .field-input {
-        display: block;
+    .button-group {
+        display: flex;
+        gap: 10px;
     }
 
     .action-button {
@@ -107,68 +85,27 @@
         cursor: pointer;
         transition: all 0.2s ease;
         border: none;
-        background-color: rgba(46, 125, 50, 0.1);
-        color: #2e7d32;
     }
 
-    .action-button:hover {
-        background-color: rgba(46, 125, 50, 0.2);
-    }
-
-    .dark-mode .action-button {
-        background-color: rgba(76, 175, 80, 0.1);
-        color: #4caf50;
-    }
-
-    .dark-mode .action-button:hover {
-        background-color: rgba(76, 175, 80, 0.2);
+    .edit-button {
+        background-color: #4CAF50;
+        color: white;
     }
 
     .save-button {
-        background-color: #2e7d32;
+        background-color: #2196F3;
         color: white;
-        margin-right: 10px;
         display: none;
-    }
-
-    .save-button:hover {
-        background-color: #2e7d32;
-        opacity: 0.9;
     }
 
     .cancel-button {
-        background-color: transparent;
-        color: #666;
-        border: 1px solid #ddd;
+        background-color: #f44336;
+        color: white;
         display: none;
     }
 
-    .cancel-button:hover {
-        background-color: rgba(0, 0, 0, 0.05);
-    }
-
-    .dark-mode .cancel-button {
-        color: #aaa;
-        border: 1px solid #555;
-    }
-
-    .dark-mode .cancel-button:hover {
-        background-color: rgba(255, 255, 255, 0.05);
-    }
-
-    .profile-field.editing .edit-button {
-        display: none;
-    }
-
-    .profile-field.editing .save-button,
-    .profile-field.editing .cancel-button {
-        display: inline-block;
-    }
-
-    .fixed-details-card {
-        background: var(--nav-bg);
-        border-radius: 8px;
-        padding: 20px;
+    .action-button:hover {
+        opacity: 0.9;
     }
 
     .detail-item {
@@ -191,35 +128,6 @@
         flex-grow: 1;
         color: var(--text-color);
     }
-
-    .button-container {
-        display: flex;
-        margin-top: 8px;
-    }
-    
-    /* Fix for the container to maintain height */
-    #bioField {
-        min-height: 220px; /* Approximate height to accommodate bio content plus buttons */
-        position: relative; /* Needed for absolute positioning of children */
-        padding-bottom: 50px; /* Make room for the button container */
-    }
-    
-    /* Prevent page reflow by using a placeholder */
-    .bio-placeholder {
-        visibility: hidden;
-        height: 0;
-        overflow: hidden;
-        display: block;
-    }
-    
-    /* Prevent window resize and maintain layout */
-    .profile-container {
-        min-height: 100vh; /* Ensure container takes full height */
-    }
-    
-    body, html {
-        overflow-x: hidden; /* Prevent horizontal scrolling */
-    }
 </style>
 {% endblock %}
 
@@ -230,36 +138,34 @@
 
     <!-- Display Name Section -->
     <div class="profile-card">
-        <div class="profile-field" id="nameField">
+        <div class="profile-field">
             <label class="field-label">Display Name</label>
             <span class="field-value" id="nameDisplay">John Doe</span>
             <input type="text" class="field-input" id="nameInput" maxlength="50" placeholder="Enter your display name">
-            <div class="button-container">
-                <button class="action-button edit-button" onclick="toggleEdit('nameField')">Change</button>
-                <button class="action-button save-button" onclick="saveEdit('nameField', 'name')">Save</button>
-                <button class="action-button cancel-button" onclick="cancelEdit('nameField')">Cancel</button>
+            <div class="button-group">
+                <button class="action-button edit-button" onclick="toggleEdit('name')">Change</button>
+                <button class="action-button save-button" onclick="saveEdit('name')">Save</button>
+                <button class="action-button cancel-button" onclick="cancelEdit('name')">Cancel</button>
             </div>
         </div>
     </div>
 
     <!-- Bio Section -->
     <div class="profile-card">
-        <div class="profile-field" id="bioField">
+        <div class="profile-field">
             <label class="field-label">About (Bio)</label>
             <span class="field-value bio-value" id="bioDisplay">Web Developer and Tech Enthusiast with a passion for creating intuitive user experiences and scalable applications. Currently exploring new technologies and building awesome projects.</span>
             <textarea class="field-input bio-input" id="bioInput" maxlength="200" placeholder="Tell us about yourself"></textarea>
-            <!-- Invisible placeholder to maintain layout -->
-            <div class="bio-placeholder" id="bioPlaceholder">Web Developer and Tech Enthusiast with a passion for creating intuitive user experiences and scalable applications. Currently exploring new technologies and building awesome projects.</div>
-            <div class="button-container">
-                <button class="action-button edit-button" onclick="toggleEdit('bioField')">Change</button>
-                <button class="action-button save-button" onclick="saveEdit('bioField', 'bio')">Save</button>
-                <button class="action-button cancel-button" onclick="cancelEdit('bioField')">Cancel</button>
+            <div class="button-group">
+                <button class="action-button edit-button" onclick="toggleEdit('bio')">Change</button>
+                <button class="action-button save-button" onclick="saveEdit('bio')">Save</button>
+                <button class="action-button cancel-button" onclick="cancelEdit('bio')">Cancel</button>
             </div>
         </div>
     </div>
 
     <!-- Account Information Section -->
-    <div class="profile-card fixed-details-card">
+    <div class="profile-card">
         <h3 class="field-label">Account Information</h3>
         <div class="detail-item">
             <span class="detail-label">Username</span>
@@ -283,108 +189,64 @@
 
 {% block scripts %}
 <script>
-    // Store original page height
-    let originalPageHeight;
-    
-    function toggleEdit(fieldId) {
-        // Prevent window scrolling temporarily
-        document.body.style.overflow = 'hidden';
-        setTimeout(() => {
-            document.body.style.overflow = '';
-        }, 10);
-        
-        const field = document.getElementById(fieldId);
-        field.classList.add('editing');
-        
-        const displayEl = field.querySelector('.field-value');
-        const inputEl = field.querySelector('.field-input');
-        
+    function toggleEdit(fieldType) {
+        const displayEl = document.getElementById(fieldType + 'Display');
+        const inputEl = document.getElementById(fieldType + 'Input');
+        const editButton = displayEl.parentElement.querySelector('.edit-button');
+        const saveButton = displayEl.parentElement.querySelector('.save-button');
+        const cancelButton = displayEl.parentElement.querySelector('.cancel-button');
+
+        // Store original content
         inputEl.value = displayEl.textContent;
         
-        // For bio field specifically
-        if (fieldId === 'bioField') {
-            // Lock the page height to prevent any resizing
-            document.documentElement.style.height = '100%';
-            document.body.style.height = '100%';
-            
-            // Ensure textarea height matches content height to prevent layout shifts
-            const bioCard = field.closest('.profile-card');
-            const bioCardHeight = bioCard.offsetHeight;
-            
-            // Set fixed height on the card to prevent shifting
-            bioCard.style.height = bioCardHeight + 'px';
-            
-            // Ensure buttons are visible
-            const buttonContainer = field.querySelector('.button-container');
-            buttonContainer.style.display = 'flex';
-            
-            // Copy text to placeholder to maintain space
-            document.getElementById('bioPlaceholder').textContent = displayEl.textContent;
-        }
+        // Show input, hide display
+        displayEl.style.display = 'none';
+        inputEl.style.display = 'block';
         
-        // Wait a tiny bit before focusing to avoid layout shifts during transition
-        setTimeout(() => {
-            inputEl.focus();
-        }, 50);
+        // Show save/cancel, hide edit
+        editButton.style.display = 'none';
+        saveButton.style.display = 'block';
+        cancelButton.style.display = 'block';
     }
-    
-    function saveEdit(fieldId, fieldType) {
-        const field = document.getElementById(fieldId);
-        const displayEl = field.querySelector('.field-value');
-        const inputEl = field.querySelector('.field-input');
-        
-        // Validate input if needed
-        if (inputEl.value.trim() === '') {
-            alert('Please enter a valid ' + fieldType);
-            return;
-        }
-        
-        // Temporarily prevent layout shifts
-        document.body.style.overflow = 'hidden';
-        
+
+    function saveEdit(fieldType) {
+        const displayEl = document.getElementById(fieldType + 'Display');
+        const inputEl = document.getElementById(fieldType + 'Input');
+        const editButton = displayEl.parentElement.querySelector('.edit-button');
+        const saveButton = displayEl.parentElement.querySelector('.save-button');
+        const cancelButton = displayEl.parentElement.querySelector('.cancel-button');
+
+        // Update display with new content
         displayEl.textContent = inputEl.value;
-        field.classList.remove('editing');
         
-        // Reset any fixed heights we set
-        if (fieldId === 'bioField') {
-            const bioCard = field.closest('.profile-card');
-            bioCard.style.height = '';
-            
-            // Reset the body/html height constraints
-            document.documentElement.style.height = '';
-            document.body.style.height = '';
-        }
+        // Hide input, show display
+        displayEl.style.display = 'block';
+        inputEl.style.display = 'none';
         
-        // Re-enable scrolling after a brief delay to avoid layout shifts
-        setTimeout(() => {
-            document.body.style.overflow = '';
-        }, 10);
-        
-        // Here you would typically send data to server
-        console.log(`Saved ${fieldType}:`, inputEl.value);
+        // Show edit, hide save/cancel
+        editButton.style.display = 'block';
+        saveButton.style.display = 'none';
+        cancelButton.style.display = 'none';
+
+        // Here you would typically send the update to the server
+        console.log(`Saving ${fieldType}:`, inputEl.value);
     }
-    
-    function cancelEdit(fieldId) {
-        // Temporarily prevent layout shifts
-        document.body.style.overflow = 'hidden';
+
+    function cancelEdit(fieldType) {
+        const displayEl = document.getElementById(fieldType + 'Display');
+        const inputEl = document.getElementById(fieldType + 'Input');
+        const editButton = displayEl.parentElement.querySelector('.edit-button');
+        const saveButton = displayEl.parentElement.querySelector('.save-button');
+        const cancelButton = displayEl.parentElement.querySelector('.cancel-button');
+
+        // Hide input, show display
+        displayEl.style.display = 'block';
+        inputEl.style.display = 'none';
         
-        const field = document.getElementById(fieldId);
-        field.classList.remove('editing');
-        
-        // Reset any fixed heights we set
-        if (fieldId === 'bioField') {
-            const bioCard = field.closest('.profile-card');
-            bioCard.style.height = '';
-            
-            // Reset the body/html height constraints
-            document.documentElement.style.height = '';
-            document.body.style.height = '';
-        }
-        
-        // Re-enable scrolling after a brief delay to avoid layout shifts
-        setTimeout(() => {
-            document.body.style.overflow = '';
-        }, 10);
+        // Show edit, hide save/cancel
+        editButton.style.display = 'block';
+        saveButton.style.display = 'none';
+        cancelButton.style.display = 'none';
     }
 </script>
 {% endblock %}
